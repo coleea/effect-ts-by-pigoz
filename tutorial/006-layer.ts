@@ -14,7 +14,7 @@ import { promisify } from "node:util";
  *
  * Firstly we import some services definitions:
  */
-import { Foo, Bar, FileDescriptor } from "utils/contexts";
+import { Foo, Bar, FileDescriptor } from "tutorial/utils/contexts";
 
 /*
  * Now we define some Effects using those services.

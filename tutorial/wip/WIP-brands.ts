@@ -1,3 +1,4 @@
+
 import * as Brand from "@effect/data/Brand";
 
 export type Eur = number & Brand.Brand<"Eur">;

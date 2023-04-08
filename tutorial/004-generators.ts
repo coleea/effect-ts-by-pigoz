@@ -9,7 +9,7 @@ import * as Context from "@effect/data/Context";
  * high quality codebases.
  */
 
-import { CustomRandomTag } from "tutorial/001-basic";
+import { CustomRandomTag } from "tutorial/001-01.effect-type";
 
 export interface Foo {
   readonly foo: number;

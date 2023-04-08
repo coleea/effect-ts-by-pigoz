@@ -1,5 +1,5 @@
 import { pipe } from "@effect/data/Function";
-import { effectify, effectifyMapError } from "utils/effectify";
+import { effectify, effectifyMapError } from "tutorial/utils/effectify";
 import * as ReadonlyArray from "@effect/data/ReadonlyArray";
 import * as Effect from "@effect/io/Effect";
 import * as fs from "node:fs";

@@ -5,14 +5,12 @@ import * as Layer from "@effect/io/Layer";
 import * as Context from "@effect/data/Context";
 
 /*
- * The unique insight of Effect is that errors and requirements/dependencies
- * should be modeled in your program's control flow.
- *
- * This is in contrast to your typical TypeScript code, where a function can
- * either return a "success" value or throw an untyped exception.
- *
- * The data type of Effect looks like the following:
- *
+ Effect의 고유한 인사이트는 오류와 요구사항/종속성을 프로그램의 제어 흐름에서 모델링해야 한다는 것입니다. 
+ 
+ 이는 함수가 "성공" 값을 반환하거나 유형이 지정되지 않은 예외를 던질 수 있는 일반적인 타입스크립트 코드와 대조적입니다.
+
+ Effect의 데이터 유형은 다음과 같습니다:
+
  * Effect<R, E, A>
  *
  * The computation has requirements (R), can fail (E) or succeed (A).
@@ -56,6 +54,8 @@ import * as Context from "@effect/data/Context";
  * success channel (A in Effect<R, E, A>)
  */
 export const succeed = Effect.succeed(7);
+console.log(succeed);
+
 //           ^ Effect.Effect<never, never, number>;
 
 /*

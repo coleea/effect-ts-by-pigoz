@@ -1,4 +1,9 @@
-### The practical guide I wish existed while learning [@Effect-TS](https://github.com/Effect-TS/)
+# Effect-TS Practice
+
+이 저장소는 pigoz의 [effect-crashcourse](https://github.com/pigoz/effect-crashcourse) 를 포크한 저장소이다
+
+위의 저장소는 https://github.com/Effect-TS/io 에 대한 튜토리얼을 제공한다
+
 
 This guide explores some concepts from the new version of
 [Effect](https://github.com/Effect-TS/io), and is written from the point of view
@@ -20,12 +25,3 @@ Start reading from [001-basic.ts](001-basic.ts)!
 ### Web-based environment
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/pigoz/effect-crashcourse?file=001-basic.ts)
-
-### Questions?
-
-Feel free to open an issue with ideas for improvement, questions, or
-contributions.
-
-#### Contributors
-
-Feel free to open a PR to improve the content.

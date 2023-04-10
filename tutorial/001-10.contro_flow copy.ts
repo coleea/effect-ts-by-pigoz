@@ -25,10 +25,19 @@ export const flakyEffect = pipe(
   Effect.sync, // Effect.Effect<never, never, number>
   Effect.map(isAbove0_5), // Effect.Effect<never, never, Either<'fail', number>>
   Effect.flatMap(Effect.fromEither), // Effect.Effect<never, 'fail', number>
+  // Effect.reduceAll
 );
 
+
+
+
 // flakyEffect : EffectPrimitive
-log(flakyEffect)
+const res = Effect.runSync(flakyEffect)
+console.log(res);
+
+// log( flakyEffect)
+
+// Effect.run
 
 // Same thing but using the number generator provided by Effect
 // export const flakyEffectAbsolved = pipe(

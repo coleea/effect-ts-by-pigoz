@@ -1,6 +1,7 @@
 import { pipe } from "@effect/data/Function";
 import * as Effect from "@effect/io/Effect";
 import * as Context from "@effect/data/Context";
+import { CustomRandomTag } from "tutorial/001-01.effect-type";
 
 /* Callback hell.
  *
@@ -9,7 +10,6 @@ import * as Context from "@effect/data/Context";
  * high quality codebases.
  */
 
-import { CustomRandomTag } from "tutorial/001-01.effect-type";
 
 export interface Foo {
   readonly foo: number;

@@ -4,24 +4,8 @@ import * as Effect from "@effect/io/Effect";
 import * as Layer from "@effect/io/Layer";
 import * as Context from "@effect/data/Context";
 
-/* As an alternative, instead of using eitherFromRandom and dealing with an
- * Either that we later lift into an Effect, we can write that conditional
- * Effect directly.
- *
- * Both are valid alternatives and the choice on which to use comes down to
- * preference.
- *
- * By using Option/Either and lifting to Effect only when necessary you can
- * keep large portions of code side effect free, stricly syncronous, and not
- * require the Effect runtime to run.
- *
- * Using Effect directly you lose some purity but gain in convenience.
- * It may be warranted if you are using the dependency injection features a
- * lot (especially in non library code).
- */
-
-// This is an Effect native implementation of eitherFromRandom defined above
 function flakyEffectFromRandom(random: number) {
+  // Effect.cond는 if-else를 표현할 수 있는 함수이다.
   return Effect.cond(
     () => random > 0.5,
     () => random,
@@ -30,9 +14,8 @@ function flakyEffectFromRandom(random: number) {
 }
 
 export const flakyEffectNative = pipe(
+  // Effect.random은 random number를 생성하는 Effect를 반환한다.
   Effect.random(), // Effect.Effect<never, never, Random>
   Effect.flatMap(random => random.next()), // Effect.Effect<never, never, number>
   Effect.flatMap(flakyEffectFromRandom), // Effect.Effect<never, 'fail', number>  
 );
-
-console.log(flakyEffectNative);

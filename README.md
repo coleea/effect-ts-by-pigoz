@@ -1,3 +1,8 @@
+부족한 지식
+
+1. Effect 자료구조에서 unwrap하는 방법
+
+
 # Effect-TS Practice
 
 이 저장소는 pigoz의 [effect-crashcourse](https://github.com/pigoz/effect-crashcourse) 를 포크한 저장소이다

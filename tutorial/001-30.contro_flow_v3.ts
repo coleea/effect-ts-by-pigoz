@@ -18,4 +18,10 @@ export const flakyEffectNative = pipe(
   Effect.random(), // Effect.Effect<never, never, Random>
   Effect.flatMap(random => random.next()), // Effect.Effect<never, never, number>
   Effect.flatMap(flakyEffectFromRandom), // Effect.Effect<never, 'fail', number>  
+  // Effect.cond를 사용했으므로 Effect.flatMap(Effect.fromEither)을 수행할 필요가 없다
+  // Effect.absolve,  
+);
+
+console.log(
+  Effect.runSync(flakyEffectNative)
 );

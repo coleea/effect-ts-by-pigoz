@@ -6,59 +6,37 @@ import { FileDescriptor } from "tutorial/utils/contexts";
 import * as fs from "node:fs";
 import { promisify } from "node:util";
 
-/* In this chapter we explore Scope.
- *
- * It is useful to understand Layer in the following chapter, but since Scope
- * can be used on it's own without Layer, it's being introduced here first.
- *
- * What is Scope? It's a datatype to model the lifetime of resources.
- *
- * In practice it is a collection of finalizers. It has 3 main methods:
- *
- *  - addFinalizer: adds a new finalizer to the Scope
- *
- *    A finalizer is an effect to be run when the Scope is closed, somewhat
- *    like a destructor in OOP
- *
- *  - close: closes the Scope executing all the finalizers that were added to it
- *
- *  - fork: creates a child Scope from the given Scope. When the parent Scope
- *    is closed, it's children are closed as well.
- */
+/*
+ 이 장에서는 스코프에 대해 살펴봅니다.
+ 다음 장에서 레이어를 이해하는 것이 스코프를 이해하는 데 도움을 주지만 레이어 없이도 스코프를 단독으로 사용할 수 있으므로 여기서는 먼저 소개합니다.
+ 스코프란 무엇인가요? 리소스의 수명을 모델링하기 위한 데이터 유형입니다.
+ 실제로는 파이널라이저의 모음입니다. 세 가지 주요 메서드가 있습니다:
 
-/* We mentioned resources above. What is a resource?
- *
- * They are also known as "scoped effect". They are effects that require a Scope to run.
- *
- * In types they look like this:
- *
- *  Effect.Effect<Scope.Scope, DatabaseConnectionError, DatabaseConnection>
- *
- *
- * The most common way to create a "scoped effect" is the `acquireRelease`
- * function.
- *
- * As you can see from the return types acquireRelease returns us an effect
- * that needs a Scope to run (thus "Scoped effect").
- *
- * The Scope will be used to manage the lifetime of the resource.
- *
- * Under the hood the "Scoped effect" returned from `acquireRelease` does the
- * following:
- *
- * 1) Puts itself into an uninterruptible region, ensuring that both the
- *    acquire and release effects are executed without interruptions
- *
- * 2) Gets a Scope from the environment (that's why Scope is in the R generic),
- *    and creates a child with fork
- *
- * 3) Executes the acquire effect. If it is successful, the release effect is
- *    added to the forked scope with addFinalizer
- *
- * 4) Returns the A value from the acquire effect.
- *
- * Let's define a basic resource that implements the FileDescriptor interface.
- */
+ - addFinalizer: Scope에 새 파이널라이저를 추가합니다.
+    파이널라이저는 스코프가 닫힐 때 실행되는 이펙트로, OOP의 디스트럭터와 비슷합니다.
+ 
+  - close: 추가된 모든 파이널라이저를 실행하는 스코프를 닫습니다.
+  - 포크: 주어진 스코프에서 자식 스코프를 생성합니다. 부모 스코프가 닫히면 자식 스코프도 닫힙니다.
+ 
+ 위에서 리소스에 대해 언급했습니다. 리소스란 무엇인가요?
+ 리소스는 "스코프 효과"라고도 합니다. 실행하려면 스코프가 필요한 이펙트입니다.
+
+ 타입은 다음과 같습니다:
+  Effect.Effect<Scope.Scope, 데이터베이스 연결 오류, 데이터베이스 연결>
+ 
+ "스코프가 지정된 효과"를 만드는 가장 일반적인 방법은 `acquireRelease` 함수입니다.
+ 반환 유형에서 알 수 있듯이 acquireRelease는 실행하기 위해 Scope가 필요한 효과(따라서 "스코프 지정 효과")를 반환합니다.
+ 스코프는 리소스의 수명을 관리하는 데 사용됩니다.
+내부적으로 `acquireRelease`에서 반환된 "스코프 지정 효과"는 다음을 수행합니다:
+ 
+ 1) 획득 및 해제 효과가 모두 중단 없이 실행되도록 중단 불가능한 영역에 자신을 배치합니다.
+ 2) 환경으로부터 스코프를 가져오고(그래서 스코프가 R 제네릭에 있음), 포크가 있는 자식을 생성합니다.
+ 3) 획득 효과를 실행합니다. 성공하면 addFinalizer를 사용하여 포크된 스코프에 릴리스 효과가 추가됩니다.
+ 4) 획득 효과에서 A 값을 반환합니다.
+ 
+ FileDescriptor 인터페이스를 구현하는 기본 리소스를 정의해 봅시다.
+*/
+
 export const resource: Effect.Effect<Scope.Scope, never, FileDescriptor> =
   Effect.acquireRelease(
     pipe(

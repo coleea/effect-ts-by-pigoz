@@ -33,30 +33,6 @@ export const flakyEffect = pipe(
   // 이렇게 함으로서 제어권을 가지게 된다
 );
 
-const res = Effect.runSync(flakyEffect)
-console.log(res);
-
-
-// Same thing but using the number generator provided by Effect
-// export const flakyEffectAbsolved = pipe(
-//   Effect.random(), // Effect.Effect<never, never, Random>
-//   Effect.flatMap(random => random.next()), // Effect.Effect<never, never, number>
-//   Effect.map(isAbove0_5), // Effect.Effect<never, never, Either<'fail', number>>
-//   Effect.absolve, // Effect.Effect<never, 'fail', number>
-// );
-/* NOTE:
- * Effect.flatMap(Effect.fromEither) is so common that there's a built in function
- * that's equivalent to it: Effect.absolve.
- */
-
-/* Up to this point we only constructed Effect values, none of the computations
- * that we defined have been executed. Effects are just objects that
- * wrap your computations as they are, for example `pipe(a, flatMap(f))` is
- * represented as `new FlatMap(a, f)`.
- *
- * This allows us to modify computations until we are happy with what they
- * do (using map, flatMap, etc), and then execute them.
- * Think of it as defining a workflow, and then running it only when you are ready.
- */
-
-// Effect.runPromise(flakyEffectAbsolved); // executes flakyEffectAbsolved
+console.log(
+  Effect.runSync(flakyEffect)
+);

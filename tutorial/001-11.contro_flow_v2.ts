@@ -20,4 +20,5 @@ export const flakyEffectAbsolved = pipe(
   // Effect.absolve는 Effect.flatMap(Effect.fromEither)와 완전히 동일하다
 );
 
-Effect.runPromise(flakyEffectAbsolved).then(console.log) 
+Effect.runPromise(flakyEffectAbsolved)
+      .then(console.log) 

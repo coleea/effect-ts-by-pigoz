@@ -109,6 +109,10 @@ example satisfies Effect.Effect<
   readonly ["success1", "success2"]
 >;
 
+// Effect.catchAll이란 Effect.catchTag와 비슷하지만, 모든 에러를 잡아서 처리할 수 있다.
+// Effect.catchAll을 언제 사용하냐면 예를 들어서, 에러를 잡아서 로그를 남기거나, 에러를 잡아서 다른 에러로 바꾸거나, 에러를 잡아서 다른 에러로 바꾸고 다시 던지거나, 에러를 잡아서 다른 에러로 바꾸고 다시 던지고 다시 잡아서 처리하거나, 에러를 잡아서 다른 에러로 바꾸고 다시 던지고 다�
+// when to use Effect.catchAll? the answer is that you can use it to log the error, or to convert the error to another error, or to convert the error to another error and throw it again, or to convert the error to another error and throw it again and catch it again, or to convert the error to another error and throw it again and catch it again and do something else with it, or to convert the error to another error and throw it ag
+// 1줄 요약 : Effect.catchTag는 Effect.catchAll과 비슷하지만, 특정 에러만 잡아서 처리할 수 있다.
 /* If we want to recover from one of those failures, we can use catchTag.
  *
  * This will remove FooError from the E in Effect<R, E, A> in `example`,

@@ -19,11 +19,14 @@ import { Foo, Bar, FileDescriptor } from "tutorial/utils/contexts";
  * Now we define some Effects using those services.
  * Everything should look familiar to the previous chapters.
  */
+// 제네레이터를 사용하는 이유 : 의존성을 주입하기 위해서
 const program1 = Effect.gen(function* ($) {
   const foo = yield* $(Foo);
-  yield* $(Effect.logInfo(`program1 ${JSON.stringify(foo)}`));
+              yield* $(Effect.logInfo(`program1 ${JSON.stringify(foo)}`));
 });
 
+// 아래 예제에서 FileDescriptor는 의존성
+// bar도 의존성
 const program2 = Effect.gen(function* ($) {
   const baz = yield* $(FileDescriptor);
   const bar = yield* $(Bar);
@@ -62,6 +65,12 @@ export const resource: Effect.Effect<Scope.Scope, never, FileDescriptor> =
   );
 
 /*
+지금부터 재미있는 파트가 시작된다
+Effect.scope로 Scoped Effect를 생성해 보았지만, Layer.scope는 scoped effect로부터 레이어를 생성한다
+그리고 scoped effect에 스코프를 제공한다. 즉 scope effect에 레이어를 제공한다
+모든 레이어는 암묵적인 스코프를 가지고 있다. 이것은 requirements에 나타나지 않는다
+그리고 스코프는 build with props에 전달된다
+
  * Now comes the interesting part.
  *
  * Similar to how we used Effect.scoped to provide a Scope to our scoped
@@ -71,9 +80,14 @@ export const resource: Effect.Effect<Scope.Scope, never, FileDescriptor> =
  * Every Layer has an implicit Scope which doesn't appear in it's requirements (R),
  * and is the Scope passed to buildWithScope.
  *
- * The main difference is that Effect.scoped provides a scope that's newly
- * created with Scope.make. On the other hand, Layer.scope forks the implicit
- * Scope and provides the child to the scoped Effect.
+ * 핵심 차이점
+ * The main difference 
+ * is that Effect.scoped provides a scope that's newly
+ * created with Scope.make. 
+ * 
+ * vs
+ * 
+ * Layer.scope forks the implicit Scope and provides the child to the scoped Effect.
  *
  * This results in the scoped Effect's release being executed when the implicit
  * Scope is closed (if you recall the previous chapter, acquireRelease adds

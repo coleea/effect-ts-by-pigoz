@@ -8,11 +8,17 @@ import * as Context from "@effect/data/Context";
 import * as fs from "node:fs";
 import { promisify } from "node:util";
 
+/*
+layer에 대한 요약
+1. 종속성을 관리할 때 쓴다
+2. dependency의 생명주기를 관리할 때 쓴다
+*/
+ 
 /* 
 001-basic.ts에서 우리는 의존성 주입을 처리하기 위해 Layer를 사용하는 매우 간단한 예제를 보았습니다. 
 여기서는 실제 프로덕션 애플리케이션에서 사용할 수 있는 범위와 런타임을 사용하는 현실적인 Layer 예제를 빌드합니다.
 먼저 몇 가지 서비스 정의를 가져옵니다:
- */
+*/
 import { Foo, Bar, FileDescriptor } from "tutorial/utils/contexts";
 
 /*

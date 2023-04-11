@@ -21,7 +21,7 @@ class Identifier {
   constructor(readonly id: number) {}
 }
 
-const sleeper = (id: number, seconds = 1000) => {
+const sleeperEffect = (id: number, seconds = 1000) => {
   const identifier = new Identifier(id);
   return pipe(
     Effect.sleep(Duration.millis(seconds)),
@@ -30,12 +30,14 @@ const sleeper = (id: number, seconds = 1000) => {
   );
 };
 
+// Effect.gen이 description이다
+// 일반적인 함수 파이프라인을 사용하지 않고 imperative하게 description하는 것이다
 export const example1 = Effect.gen(function* ($) {
   yield* $(Effect.logInfo("before"));
 
   // These types can be inferred, we're just explicitly annotating it here
   type fiberT = Fiber.RuntimeFiber<never, Identifier>;
-  const fiber: fiberT = yield* $(Effect.fork(sleeper(1)));
+  const fiber: fiberT = yield* $(Effect.fork(sleeperEffect(5)));
 
   yield* $(Effect.logInfo("after"));
 
@@ -44,18 +46,6 @@ export const example1 = Effect.gen(function* ($) {
   yield* $(Effect.logInfo(JSON.stringify(id)));
 });
 
-// Effect.runPromise(example1);
-
-/*
- * Running it yields:
- *
- * fiber=#0 message="before"
- * fiber=#0 message="after"
- * fiber=#1 message="waked from 1"
- * fiber=#0 message="{"op":6,"value":1}"
- *
- * As you can notice, the forked code runs in a separate fiber.
- */
 
 const longFailing = (id: Identifier) =>
   pipe(
@@ -99,7 +89,7 @@ export const example3 = Effect.gen(function* ($) {
  * "Par" in their name: allPar, collectPar, collectAllPar, etc.
  */
 
-const effects = [sleeper(1, 300), sleeper(2, 100), sleeper(3, 200)];
+const effects = [sleeperEffect(1, 300), sleeperEffect(2, 100), sleeperEffect(3, 200)];
 
 export const example4 = Effect.gen(function* ($) {
   // Chunk is an "Array-like" immutable data structure in @effect/data
@@ -171,7 +161,7 @@ export const example6 = Effect.gen(function* ($) {
 export const example7 = Effect.gen(function* ($) {
   const identifiers = pipe(
     [7, 8, 9],
-    Effect.forEachPar(x => sleeper(x)), // Effect<never, never, Chunk<Identifier>>
+    Effect.forEachPar(x => sleeperEffect(x)), // Effect<never, never, Chunk<Identifier>>
     Effect.map(Chunk.map(_ => _.id.toString())), // Effect<never, never, Chunk<string>>
     Effect.map(Chunk.join(",")), // Effect<never, never, string>
   );

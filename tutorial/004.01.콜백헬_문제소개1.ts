@@ -6,6 +6,8 @@ import { CustomRandomTag } from "tutorial/000-01.effect-type";
 export interface Foo {readonly foo: number;}
 export interface Bar {readonly bar: number;}
 
+// 핵심
+// tag란 외부 의존성이다. 다른말로 외부로부터 주입받는 인자이다
 export const FooTag = Context.Tag<Foo>();
 export const BarTag = Context.Tag<Bar>();
 

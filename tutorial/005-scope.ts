@@ -16,13 +16,27 @@ import { promisify } from "node:util";
     파이널라이저는 스코프가 닫힐 때 실행되는 이펙트로, OOP의 디스트럭터와 비슷합니다.
  
   - close: 추가된 모든 파이널라이저를 실행하는 스코프를 닫습니다.
+
   - 포크: 주어진 스코프에서 자식 스코프를 생성합니다. 부모 스코프가 닫히면 자식 스코프도 닫힙니다.
  
  위에서 리소스에 대해 언급했습니다. 리소스란 무엇인가요?
- 리소스는 "스코프 효과"라고도 합니다. 실행하려면 스코프가 필요한 이펙트입니다.
+ 리소스는 "스코프 effect"라고도 부른다. 실행하려면 스코프가 필요한 이펙트를 scoped effect라고 부른다
+ 핵심요약 : 리소스 === scoped effect
 
  타입은 다음과 같습니다:
   Effect.Effect<Scope.Scope, 데이터베이스 연결 오류, 데이터베이스 연결>
+  주목 : 환경에는 Scope가 있습니다. 이것은 스코프를 가져오는 데 사용됩니다.
+  즉 scope를 지정하여 얻는 이점은 environment를 한정지을 수 잇다
+
+  zio 공식 홈페이지에서 scope를 이렇게 소개한다
+  The Scope data type is the foundation of safe and composable resources handling in ZIO.
+https://zio.dev/reference/resource/scope/
+
+그리고 이 다음에 핵심 문장이 나온다
+In combination with the ZIO environment, Scope gives us an extremely powerful way to manage resources.
+
+
+
  
  "스코프가 지정된 효과"를 만드는 가장 일반적인 방법은 `acquireRelease` 함수입니다.
  반환 유형에서 알 수 있듯이 acquireRelease는 실행하기 위해 Scope가 필요한 효과(따라서 "스코프 지정 효과")를 반환합니다.
@@ -37,6 +51,15 @@ import { promisify } from "node:util";
  FileDescriptor 인터페이스를 구현하는 기본 리소스를 정의해 봅시다.
 */
 
+
+// 이 장에서 등장하는 신개념
+// Effect.acquireRelease : Effect.Effect<Scope.Scope, never, FileDescriptor>
+// node:util의 promisify
+// 아래 코드 요약 :
+// 1. fs.open을 실행하고, 성공하면 fd를 반환한다
+// 2. fd를 반환하고, 성공하면 fd를 닫는다
+// fd가 반환되고 닫히는 것 까지를 하나의 생명주기로 볼 수 있다
+// 생명주기를 관리한다
 export const resource: Effect.Effect<Scope.Scope, never, FileDescriptor> =
   Effect.acquireRelease(
     pipe(
@@ -52,16 +75,17 @@ export const resource: Effect.Effect<Scope.Scope, never, FileDescriptor> =
   );
 
 /*
- * The example above manages the lifetime of a File Descriptor.
+ * 상단의 예제는 파일 디스크립터의 생명주기를 관리한다
+    생명주기를 관리할 수 있는 다양한 것들이 있다
+    예) db 커넥션 pool, 네트워크 커넥션 등
  *
- * As you can imagine this could be any resource: a database connection pool,
- * a network connection, etc.
- *
- * Anyhow, we now have our "scoped effect". If we want to run it we have to
+ * 어쨋든 우리는 우리의 "scoped effect"를 가지게 되었다. If we want to run it we have to
  * provide a Scope to it - which turns R from Scope to never.
  */
 type useFileDescriptor = Effect.Effect<never, never, void>;
 
+// 개념적으로는 이해가 가지만 스코프를 사용하는게 왜 유용한지 이해가 되지 않음
+// 스코프를 열고 스코프를 닫는 행위가 어떤 유익함을 주는지 알 수 없음
 export const useFileDescriptorNaive: useFileDescriptor = Effect.gen(function* (
   $,
 ) {

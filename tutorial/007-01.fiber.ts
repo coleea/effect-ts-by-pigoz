@@ -8,13 +8,9 @@ import * as Duration from "@effect/data/Duration";
 import { pipe } from "@effect/data/Function";
 
 /*
- * Until now we executed effects in a way that made them look synchronous.
- *
- * That's one special aspect of Effect - you can mix async and sync code in
- * the same program, without labeling functions separately.
- *
- * To execute an effect without blocking the current process, we can use fibers,
- * which are a lightweight concurrency mechanism.
+* 지금까지는 이펙트를 동기적으로 보이게 하는 방식으로 실행했습니다.
+ * 비동기 코드와 동기 코드를 별도의 함수 레이블을 지정하지 않고도 동일한 프로그램에서 혼합할 수 있다는 점이 이펙트의 특별한 점입니다.
+ * 현재 프로세스를 블로킹하지 않고 이펙트를 실행하려면 가벼운 동시성 메커니즘인 파이버를 사용할 수 있습니다.
  */
 
 class Identifier {
@@ -65,7 +61,4 @@ const longFailing = (id: Identifier) =>
     Effect.flatMap(() => Effect.succeed(id)),
   );
 
-
-
   console.log(longFailing(new Identifier(1)));
-  

@@ -74,11 +74,9 @@ export const tuple2 = pipe(
 );
 
 /*
- * But you would still end up with messy code in real application code, not to
- * mention testing code!
- *
- * To address this issue, Effect has an API that uses generators to avoid
- * callback hell.
+콜백 헬의 두번째 솔루션 : 제네레이터
+Effect.gen은 제네레이터 함수를 인자로 받는다.
+이 제네레이터 함수를 어떻게 쓰는지는 알려주지 않는다
  */
 export const generator = Effect.gen(function* ($) {
   /* NOTE: Unfortunately Effects must be wrapped in this $ function because of
@@ -119,7 +117,8 @@ export const generatorerr = Effect.gen(function* ($) {
 });
 
 /*
- * Another option for avoiding callback hell is "Do notation".
+ 세번째 콜백헬 솔루션 : "Do notation".
+ Do notation 내에서는 Effect.bind()를 호출하여 변수를 바인딩 할 수 있다
  * This lets you bind effects/values to names when using pipe without
  * introducing more nesting.
  *

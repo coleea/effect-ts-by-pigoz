@@ -53,36 +53,6 @@ export class BazError {
 
 import * as Equal from "@effect/data/Equal";
 
-// This is true because the argument to FooError is compared by value
-export const isEqual = Equal.equals(
-  FooError({ error: "foo1" }),
-  FooError({ error: "foo1" }),
-);
-
-export const isEqualClass = Equal.equals(
-  new FooErrorClass({ error: "foo1" }),
-  new FooErrorClass({ error: "foo1" }),
-);
-
-// This is not true, foo1 and foo2 are different!
-export const isNotEqual = Equal.equals(
-  FooError({ error: "foo1" }),
-  FooError({ error: "foo2" }),
-);
-
-/*
- * NOTE: Aside from Data.Case, Data also has a few other handy data structures
- * to perform comparison by value: Data.struct, Data.tuple, Data.array.
- */
-
-/*
- * Handling failures
- * =================
- *
- * Let's move on and use the Errors we defined! :)
- *
- * Suppose we have some similar code with two possible failures
- */
 
 function flaky() {
   return Math.random() > 0.5;

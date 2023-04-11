@@ -151,3 +151,32 @@ catchTags satisfies Effect.Effect<
   never,
   readonly ["success1", "success2"] | "foo" | "bar"
 >;
+
+/* If you are integrating Effect in a legacy codebase and you defined
+ * errors as tagged unions with a key different from _tag, you can use
+ * Effect.catch. The following is equivalent to Effect.catchTag */
+const catchCustomTag = Effect.catch(example, "_tag", "FooError", e =>
+  Effect.fail(new BazError(e.error)),
+);
+
+catchCustomTag satisfies typeof catchTagFail;
+
+/* catchAll recovers at once from all the errors in the failure channel.
+ * You can use it to perform custom matching on errors in case you are not
+ * using tagged unions.
+ *
+ * Observe how the A type perfectly maintains the possible return types
+ *
+ * NOTE: In the Effect internals, catchTag is built on top of catchAll!
+ */
+const catchAll = Effect.catchAll(example, e =>
+  Effect.succeed(["recover", e._tag] as const),
+);
+
+catchAll satisfies Effect.Effect<
+  never,
+  never,
+  | readonly ["success1", "success2"]
+  | readonly ["recover", "FooError" | "BarError"]
+>;
+

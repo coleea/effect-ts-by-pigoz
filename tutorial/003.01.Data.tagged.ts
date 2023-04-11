@@ -6,6 +6,7 @@ import * as Option from "@effect/data/Option";
 import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
 
+// 3장은 에러 타입을 만드는 방법들을 소개한다
 export interface FooError extends Data.Case {
   readonly _tag: "FooError";
   readonly error: string;

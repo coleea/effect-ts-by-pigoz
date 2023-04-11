@@ -43,12 +43,10 @@ export class BazError {
 }
 
 /*
- * The nice thing about using classes is you can define the type and
- * constructor in one go. But many people dislike them, so it's your choice
- * which option to use.
- *
- * Errors defined through Data have the added benefit of providing an Equal
- * implementation. That allows to compare errors by value instead of reference.
+ * 클래스를 사용하는 것의 장점 : 타입과 constructor를 한방에 정의할 수 있다
+ * 많은 사람들이 이것을 싫어하지만 어떤 방식을 취할지는 당신의 선택이다
+ * 데이터를 통해 정의된 에러는 동일한 구현을 제공한다는 추가적인 혜택을 가진다  
+ * 이것은 reference대신 값으로 에러를 비교하는 것을 가능하게 해준다
  */
 
 import * as Equal from "@effect/data/Equal";
@@ -71,17 +69,14 @@ export const isNotEqual = Equal.equals(
 );
 
 /*
- * NOTE: Aside from Data.Case, Data also has a few other handy data structures
- * to perform comparison by value: Data.struct, Data.tuple, Data.array.
- */
-
-/*
- * Handling failures
+* Data.Case는 제쳐두고, Data 또한 value로 비교를 수행하는 일부 다른 가벼운 데이터 구조를 가진다 : Data.struct, Data.tuple, Data.array
+ * 
+ * 실패를 핸들링하기
  * =================
  *
+ * 우리가 정의한 에러를 사용해 보자
  * Let's move on and use the Errors we defined! :)
- *
- * Suppose we have some similar code with two possible failures
+ * 2가지 가능한 실패가 있다고 가정해 보자
  */
 
 function flaky() {
@@ -103,6 +98,8 @@ export const example = pipe(
   ),
 );
 
+// effect를 처리한 뒤에 그 effect를 인자로 받아서 또다시 effect를 처리한다면 
+// 타입 시그니처에 error 2개가 or 형식으로 자동으로 생성된다
 example satisfies Effect.Effect<
   never,
   FooError | BarError,
@@ -110,14 +107,19 @@ example satisfies Effect.Effect<
 >;
 
 // Effect.catchAll이란 Effect.catchTag와 비슷하지만, 모든 에러를 잡아서 처리할 수 있다.
-// Effect.catchAll을 언제 사용하냐면 예를 들어서, 에러를 잡아서 로그를 남기거나, 에러를 잡아서 다른 에러로 바꾸거나, 에러를 잡아서 다른 에러로 바꾸고 다시 던지거나, 에러를 잡아서 다른 에러로 바꾸고 다시 던지고 다시 잡아서 처리하거나, 에러를 잡아서 다른 에러로 바꾸고 다시 던지고 다�
-// when to use Effect.catchAll? the answer is that you can use it to log the error, or to convert the error to another error, or to convert the error to another error and throw it again, or to convert the error to another error and throw it again and catch it again, or to convert the error to another error and throw it again and catch it again and do something else with it, or to convert the error to another error and throw it ag
+// Effect.catchAll는 에러를 잡아서 로그를 남길 때 사용할 수 있다
 // 1줄 요약 : Effect.catchTag는 Effect.catchAll과 비슷하지만, 특정 에러만 잡아서 처리할 수 있다.
 /* If we want to recover from one of those failures, we can use catchTag.
  *
  * This will remove FooError from the E in Effect<R, E, A> in `example`,
  * and unify the return type of the callback with `example`.
  */
+
+// 한줄요약 : catchTag는 try catch이다
+// 특정 종류의 에러를 잡아서 처리할 수 있다
+// 이렇게 되면 특정 종류의 에러를 recover할 수 있는데 그렇게 되면 특정 에러가 사라지고, 그 에러를 처리한 결과가 A에 추가된다
+// tag형태로 지정된 에러를 받아서 recover한다
+// 이것은 FooError를 제거하고 그것을 succeed로 변환할 것이다
 const catchTagSucceed = Effect.catchTag(example, "FooError", e =>
   Effect.succeed(["recover", e.error] as const),
 );
@@ -141,250 +143,3 @@ catchTagFail satisfies Effect.Effect<
   BarError | BazError,
   readonly ["success1", "success2"]
 >;
-
-/* catchTags allows to catch multiple errors from the failure channel */
-// we handled both errors and returned a string literal, which is now part of
-// the A type
-const catchTags = Effect.catchTags(example, {
-  FooError: _e => Effect.succeed("foo" as const),
-  BarError: _e => Effect.succeed("bar" as const),
-});
-
-catchTags satisfies Effect.Effect<
-  never,
-  never,
-  readonly ["success1", "success2"] | "foo" | "bar"
->;
-
-/* If you are integrating Effect in a legacy codebase and you defined
- * errors as tagged unions with a key different from _tag, you can use
- * Effect.catch. The following is equivalent to Effect.catchTag */
-const catchCustomTag = Effect.catch(example, "_tag", "FooError", e =>
-  Effect.fail(new BazError(e.error)),
-);
-
-catchCustomTag satisfies typeof catchTagFail;
-
-/* catchAll recovers at once from all the errors in the failure channel.
- * You can use it to perform custom matching on errors in case you are not
- * using tagged unions.
- *
- * Observe how the A type perfectly maintains the possible return types
- *
- * NOTE: In the Effect internals, catchTag is built on top of catchAll!
- */
-const catchAll = Effect.catchAll(example, e =>
-  Effect.succeed(["recover", e._tag] as const),
-);
-
-catchAll satisfies Effect.Effect<
-  never,
-  never,
-  | readonly ["success1", "success2"]
-  | readonly ["recover", "FooError" | "BarError"]
->;
-
-/* catchSome recovers from some (or all) errors in the failure channel.
- *
- * Unlike catchAll, or catchTag, catchSome doesn't narrow the error type, but
- * it can widen it to a broader class of errors.
- *
- * In real world code, you probably always want to use use catchTag instead
- * since it can both narrow and widen the error type.
- */
-const catchSome = Effect.catchSome(example, e =>
-  pipe(
-    Match.value(e),
-    Match.tag("FooError", e =>
-      Effect.cond(
-        () => e.error === "foo",
-        () => "foo" as const,
-        () => e,
-      ),
-    ),
-    Match.option,
-  ),
-);
-
-// Note: Match (@effect/match) is a pattern matching library from the Effect
-// ecosystem
-
-catchSome satisfies Effect.Effect<
-  never,
-  FooError | BarError,
-  readonly ["success1", "success2"] | "foo"
->;
-
-/* orElse* functions are similar to catchAll but on top of failures they
- * also catch interruptions.
- *
- * Notice how E is now the never type, and A is a union of the two possible
- * return types
- */
-const fallback = Effect.orElse(example, () => Effect.succeed("foo" as const));
-
-fallback satisfies Effect.Effect<
-  never,
-  never,
-  readonly ["success1", "success2"] | "foo"
->;
-
-/*
- * orElseEither uses an Either to store the original success value, or the
- * fallback success value
- */
-const fallbackEither = Effect.orElseEither(example, () =>
-  Effect.succeed("foo" as const),
-);
-
-fallbackEither satisfies Effect.Effect<
-  never,
-  never,
-  Either.Either<readonly ["success1", "success2"], "foo">
->;
-
-/* The last option is folding, known as matching in Effect */
-const match = Effect.match(
-  example,
-  error => error._tag,
-  success => success[0],
-);
-
-match satisfies Effect.Effect<
-  never,
-  never,
-  "FooError" | "BarError" | "success1"
->;
-
-/* Handling Defects
- * ================
- *
- * As mentioned in the original summary, defects are unexpected errors that
- * don't appear in the failure channel (E of Effect<R,E,A>).
- *
- * Even though they don't appear in E, the Effect runtime still keeps track
- * of them in a data structure called Cause.
- *
- * Here are the constructors for all Cause types:
- */
-
-Cause.empty; // Cause of an Effect that succeeds
-Cause.fail; // Cause of an Effect that errors with fail (failure)
-Cause.die; // Cause of an Effect that errors with die (defect)
-Cause.interrupt; // Cause of an Effect that errors with interrupt
-Cause.annotated; // represents a cause with metadata (for example the stack trace)
-Cause.sequential; // represents two errors that have occurred in sequence
-Cause.parallel; // represents two errors that have occurred in parallel
-
-// And with Cause.match you can match a cause by it's type:
-Cause.match(
-  Cause.empty,
-  "empty",
-  error => `fail ${error}`,
-  defect => `die ${defect}`,
-  fiberid => `interrupt ${fiberid}`,
-  (value, annotation) => `annotated ${value} ${annotation}`,
-  (left, right) => `sequential ${left} ${right}`,
-  (left, right) => `parallel ${left} ${right}`,
-);
-
-// Effect.cause returns an Effect that succeeds with the argument's Cause, or
-// the empty Cause if the argument succeeds.
-const emptyCause = Effect.cause(Effect.succeed(1));
-emptyCause satisfies Effect.Effect<never, never, Cause.Cause<never>>;
-
-const failCause = Effect.cause(Effect.fail(1));
-failCause satisfies Effect.Effect<never, never, Cause.Cause<number>>;
-
-/*
- * Since defects are unexpected errors, most of the time you just may want to
- * log them with catchAllCause and logErrorCause:
- */
-
-const dieExample = pipe(
-  example,
-  Effect.flatMap(() => Effect.die("💥")),
-);
-
-/*
- * Effect.catchAllCause is similar to Effect.catchAll but exposes the full
- * Cause<E> in the callback, instead of just E
- */
-const catchAllCauseLog = Effect.catchAllCause(dieExample, cause =>
-  Effect.logErrorCauseMessage("something went wrong", cause),
-);
-
-catchAllCauseLog satisfies Effect.Effect<never, never, void>;
-
-/*
- * Effect.runPromise(catchAllCauseLog) will print a stack trace. i.e:
- *
- * timestamp=2023-02-14T17:19:17.373Z level=ERROR fiber=#0 message="something went wrong" cause="
- * Error: 💥
- *     at 002-errors.ts:233:21
- *     at 002-errors.ts:233:5
- *     at 002-errors.ts:236:28
- */
-
-/* Defect to Failure
- *
- * Effect.absorb and Effect.resurrect allow to recover from defects and
- * transform them into failure discarding all the information about the Cause
- *
- * They have the same type signature, but while absorb only recovers from
- * Defects, resurrect also recovers from Interrupts.
- */
-
-const interruptExample = pipe(
-  example,
-  Effect.flatMap(() => Effect.interrupt()),
-);
-
-const absorb = pipe(dieExample, Effect.absorb, Effect.ignore);
-const resurrect = pipe(interruptExample, Effect.resurrect, Effect.ignore);
-
-const successful = pipe(
-  absorb,
-  Effect.flatMap(() => resurrect),
-  Effect.flatMap(() => Effect.succeed("recovered" as const)),
-  Effect.zipLeft(Effect.logInfo("exited successfully")),
-);
-
-/*
- * Note: Effect.zipLeft(a, b) combines (zips) a and b in a single Effect that
- * runs a and b sequentially, and returns the return value of a.
- *
- * Here it's used to run logInfo but discard it's result.
- */
-
-successful satisfies Effect.Effect<never, never, "recovered">;
-
-/* Failure to Defect
- *
- * Effect.refine* functions allow to convert all failures except some into
- * defects.
- */
-
-const refineTagOrDie = Effect.refineTagOrDie(example, "FooError");
-
-refineTagOrDie satisfies Effect.Effect<
-  never,
-  FooError,
-  readonly ["success1", "success2"]
->;
-
-/* Sandbox
- *
- * catchSomeCause and catchAllCause are actually shorthands for using
- * sandbox -> catchSome/catchAll -> unsandbox
- *
- * sandbox exposes the full Cause in the failure channel (E), while unsandbox
- * submerges it.
- */
-export const sandboxed = pipe(
-  dieExample,
-  Effect.sandbox,
-  // Hover over _errorCause to see its type
-  Effect.catchSome(_errorCause => Option.some(Effect.succeed(1))),
-  Effect.unsandbox,
-);

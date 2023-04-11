@@ -151,3 +151,14 @@ catchTags satisfies Effect.Effect<
   never,
   readonly ["success1", "success2"] | "foo" | "bar"
 >;
+
+
+
+// 핵심요약 : Effect.catch는 try-catch와 유사한 방식으로 에러를 처리한다
+// 객체의 _tag 프로퍼티에 에러 항목을 정의한 경우, Effect.catch로 에러를 캐치할 수 있다
+
+const catchCustomTag = Effect.catch(example, "_tag", "FooError", e =>
+  Effect.fail(new BazError(e.error)),
+);
+
+catchCustomTag satisfies typeof catchTagFail;

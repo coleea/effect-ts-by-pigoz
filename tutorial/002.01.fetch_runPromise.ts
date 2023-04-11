@@ -3,6 +3,11 @@ import * as Effect from "@effect/io/Effect";
 import * as Schema from "@effect/schema/Schema";
 import { parseEither } from "./utils/decode";
 
+// 핵심요약
+// 데이터 fetch에는 Effect.tryCatchPromise를 사용한다.
+// Effect.tryCatchPromise는 Promise를 받아서 Effect를 리턴한다.
+// Schema.struct를 사용하여 런타임 타입 체킹을 할 수 있다
+// Effect.runPromise는 Effect를 받아서 Promise를 리턴한다.
 const id = "97459c0045f373f4eaf126998d8f65dc";
 
 const fetchGist = (id: string) =>

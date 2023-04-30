@@ -10,6 +10,7 @@
 
 0. effect data type 
    - 원시 데이터 혹은 함수로 effect 데이터를 만드는 방법을 알아본다
+   - effect 데이터 타입은 primitive data type으로 만들 수도 있고 함수로 만들 수도 있다   -
 
 1. 실행흐름
    - pipe를 활용해서 effect 데이터를 만든다

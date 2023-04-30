@@ -151,3 +151,12 @@ catchTags satisfies Effect.Effect<
   never,
   readonly ["success1", "success2"] | "foo" | "bar"
 >;
+
+/* If you are integrating Effect in a legacy codebase and you defined
+ * errors as tagged unions with a key different from _tag, you can use
+ * Effect.catch. The following is equivalent to Effect.catchTag */
+const catchCustomTag = Effect.catch(example, "_tag", "FooError", e =>
+  Effect.fail(new BazError(e.error)),
+);
+
+catchCustomTag satisfies typeof catchTagFail;

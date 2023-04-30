@@ -1,19 +1,14 @@
-
 import * as Brand from "@effect/data/Brand";
-
-
-// TypeScript에서 &는 유형 병합 연산자로 사용되며, 
-// 여러 타입을 결합하여 새로운 타입을 생성할 때 사용됩니다. 
-// 이 연산자는 주로 교차 타입(cross types)을 정의할 때 사용되며, 
-// 이는 여러 타입의 속성을 결합하여 하나의 타입으로 만드는 것을 의미합니다.
-// 예를 들어, 두 객체 타입 A와 B가 있을 때, A & B는 A와 B의 속성을 모두 갖는 새로운 타입을 생성합니다.
 
 export type Eur = number & Brand.Brand<"Eur">;
 export const Eur = Brand.nominal<Eur>();
 
 console.log('Eur');
 console.log(Eur);
+
+console.log('Eur(10)');
 console.log(Eur(10));
+
 console.log(`typeof Eur(10)`);
 console.log(typeof Eur(10));
 
@@ -26,8 +21,6 @@ Eur
   [Symbol(@effect/data/Brand/Refined)]: Symbol(@effect/data/Brand/Refined)
 }
 */
-
-
 
 /*
 const nominal: <Eur>() => Brand.Brand<in out K extends string | symbol>.Constructor<Eur>
@@ -69,10 +62,3 @@ const payment = Payed(Eur(10));
 console.log("euros: %o", payment);
 console.log('typeof payment');
 console.log(typeof payment);
-
-
-
-
-
-
-

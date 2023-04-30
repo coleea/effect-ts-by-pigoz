@@ -1,10 +1,12 @@
+import * as Equal from "@effect/data/Equal";
 import * as Effect from "@effect/io/Effect";
-import * as Cause from "@effect/io/Cause";
 import * as Data from "@effect/data/Data";
-import * as Match from "@effect/match";
-import * as Option from "@effect/data/Option";
-import * as Either from "@effect/data/Either";
 import { pipe } from "@effect/data/Function";
+
+// import * as Cause from "@effect/io/Cause";
+// import * as Match from "@effect/match";
+// import * as Option from "@effect/data/Option";
+// import * as Either from "@effect/data/Either";
 
 export interface FooError extends Data.Case {
   readonly _tag: "FooError";
@@ -13,8 +15,6 @@ export interface FooError extends Data.Case {
 
 export const FooError = Data.tagged<FooError>("FooError");
 
-// plain Typescript interfaces with corresponding constructor
-// NOTE: this is the minimalist option if you want to use interfaces
 export interface BatError {
   readonly _tag: "BatError";
   readonly error: unknown;
@@ -49,24 +49,6 @@ export class BazError {
  * 이것은 reference대신 값으로 에러를 비교하는 것을 가능하게 해준다
  */
 
-import * as Equal from "@effect/data/Equal";
-
-// This is true because the argument to FooError is compared by value
-export const isEqual = Equal.equals(
-  FooError({ error: "foo1" }),
-  FooError({ error: "foo1" }),
-);
-
-export const isEqualClass = Equal.equals(
-  new FooErrorClass({ error: "foo1" }),
-  new FooErrorClass({ error: "foo1" }),
-);
-
-// This is not true, foo1 and foo2 are different!
-export const isNotEqual = Equal.equals(
-  FooError({ error: "foo1" }),
-  FooError({ error: "foo2" }),
-);
 
 /*
 * Data.Case는 제쳐두고, Data 또한 value로 비교를 수행하는 일부 다른 가벼운 데이터 구조를 가진다 : Data.struct, Data.tuple, Data.array
@@ -83,7 +65,26 @@ function flaky() {
   return Math.random() > 0.5;
 }
 
-export const example = pipe(
+const example2 = pipe(
+  Effect.random(),
+  // Effect.flatMap(random => random.next()), // Effect.Effect<never, never, number>
+  Effect.flatMap(random => random.next()),
+  Effect.flatMap((e) => {
+    return Effect.cond(
+      () => e > 0.5,
+      () => Effect.succeed(1), 
+      () => FooError({error : "error1"})
+    )
+  })
+)
+
+console.log(
+  Effect.runSync(
+    example2
+  )
+);
+
+export const example = pipe(  
   Effect.cond(
     flaky,
     () => "success1" as const,
@@ -98,8 +99,6 @@ export const example = pipe(
   ),
 );
 
-// effect를 처리한 뒤에 그 effect를 인자로 받아서 또다시 effect를 처리한다면 
-// 타입 시그니처에 error 2개가 or 형식으로 자동으로 생성된다
 example satisfies Effect.Effect<
   never,
   FooError | BarError,
@@ -120,8 +119,8 @@ example satisfies Effect.Effect<
 // 이렇게 되면 특정 종류의 에러를 recover할 수 있는데 그렇게 되면 특정 에러가 사라지고, 그 에러를 처리한 결과가 A에 추가된다
 // tag형태로 지정된 에러를 받아서 recover한다
 // 이것은 FooError를 제거하고 그것을 succeed로 변환할 것이다
-const catchTagSucceed = Effect.catchTag(example, "FooError", e =>
-  Effect.succeed(["recover", e.error] as const),
+const catchTagSucceed = Effect.catchTag(
+  example, "FooError", e =>  Effect.succeed(["recover", e.error] as const),
 );
 
 // Notice how FooError disappeared from the E type, and A now has a union of
@@ -134,9 +133,7 @@ catchTagSucceed satisfies Effect.Effect<
 
 // Here, we caught FooError but returned another error called BazError!
 // Now the E type has both BarError and BazError, and A didn't change
-const catchTagFail = Effect.catchTag(example, "FooError", e =>
-  Effect.fail(new BazError(e.error)),
-);
+const catchTagFail = Effect.catchTag(example, "FooError", e => Effect.fail(new BazError(e.error)),);
 
 catchTagFail satisfies Effect.Effect<
   never,

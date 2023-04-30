@@ -7,8 +7,3 @@ const UserId = Brand.nominal<UserId>()
 console.log(
   UserId(1) 
 );
-
-console.log(1);
-
-
-// (UserId(1), 1)

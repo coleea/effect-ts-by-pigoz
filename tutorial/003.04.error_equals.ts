@@ -41,8 +41,6 @@ export class BazError {
  * 데이터를 통해 정의된 에러는 동일한 구현을 제공한다는 추가적인 혜택을 가진다  
  * 이것은 reference대신 값으로 에러를 비교하는 것을 가능하게 해준다
  */
-
-
 export const isEqual = Equal.equals(
   FooError({ error: "foo1" }),
   FooError({ error: "foo1" }),

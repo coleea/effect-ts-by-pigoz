@@ -1,14 +1,15 @@
 {
-  "include": ["**/*.ts", "tutorial/003-errors_v2ts"],
+  "include": ["**/*.ts", "tutorial/003-errors_v2ts", "tutorial/evolu/evolu.sample.ts"],
   "exclude": ["node_modules"],
   "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
     "lib": ["DOM", "DOM.Iterable", "ES2019"],
     "isolatedModules": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "target": "ES2019",
-    "strict": true,
+    "target": "ESNext",
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
